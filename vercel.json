@@ -1,0 +1,6 @@
+{
+  "rewrites": [
+    { "source": "/", "destination": "/김비서/index.html" },
+    { "source": "/(chart|dashboard|diagram|meeting-result|report)\\.html", "destination": "/김비서/$1.html" }
+  ]
+}
