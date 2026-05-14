@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>매출 분석 차트</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --bg-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --card-border: rgba(255, 255, 255, 0.3);
+            --text-primary: #1a1a2e;
+            --text-secondary: #555;
+            --text-tertiary: #999;
+            --shadow: 0 8px 32px rgba(31, 38, 135, 0.2);
+            --shadow-hover: 0 15px 50px rgba(31, 38, 135, 0.3);
+            --accent: #667eea;
+            --chart-color-1: #2196F3;
+            --chart-color-2: #4CAF50;
+            --chart-color-3: #FF9800;
+            --chart-color-4: #9C27B0;
+            --chart-color-5: #00BCD4;
+            --chart-color-6: #F44336;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: linear-gradient(135deg, #0f0f23 0%, #1a1a3e 100%);
+            --bg-secondary: linear-gradient(135deg, #2d1b69 0%, #1f0f4c 100%);
+            --card-bg: rgba(30, 20, 60, 0.4);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --text-primary: #e0e0e0;
+            --text-secondary: #b0b0b0;
+            --text-tertiary: #808080;
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            --shadow-hover: 0 15px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .nav-menu {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--card-border);
+            backdrop-filter: blur(10px);
+            z-index: 200;
+            box-shadow: var(--shadow);
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            height: 70px;
+            gap: 10px;
+        }
+
+        .nav-logo {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: var(--accent);
+            margin-right: 30px;
+            white-space: nowrap;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 5px;
+            flex: 1;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .nav-link {
+            padding: 10px 20px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95em;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 1px solid transparent;
+            white-space: nowrap;
+        }
+
+        .nav-link:hover {
+            background: rgba(102, 126, 234, 0.1);
+            color: var(--accent);
+            border-color: rgba(102, 126, 234, 0.2);
+        }
+
+        .nav-link.active {
+            background: linear-gradient(135deg, #2196F3 0%, #4CAF50 100%);
+            color: white;
+            border-color: var(--accent);
+            box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-primary);
+            padding: 110px 20px 40px 20px;
+            color: var(--text-primary);
+            position: relative;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg-secondary);
+            opacity: 0.5;
+            animation: gradientShift 15s ease infinite;
+            z-index: -2;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 0.7; }
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(10px);
+            border-radius: 50px;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 1.2em;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .theme-toggle:hover {
+            box-shadow: var(--shadow-hover);
+            transform: translateY(-2px);
+        }
+
+        .theme-toggle span {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.9em;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            margin-bottom: 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 20px;
+            animation: slideDown 0.8s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            color: var(--text-primary);
+            background: linear-gradient(135deg, #2196F3 0%, #4CAF50 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+        }
+
+        .header-links {
+            display: flex;
+            gap: 10px;
+        }
+
+        .back-link {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 10px 20px;
+            border-radius: 20px;
+            text-decoration: none;
+            color: var(--accent);
+            font-weight: 600;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow);
+            font-size: 0.95em;
+        }
+
+        .back-link:hover {
+            box-shadow: var(--shadow-hover);
+            transform: translateY(-2px);
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(10px);
+            border-radius: 25px;
+            padding: 35px;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            animation: fadeIn 0.8s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-hover);
+            border-color: rgba(33, 150, 243, 0.3);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card h2 {
+            font-size: 1.4em;
+            margin-bottom: 25px;
+            color: var(--text-primary);
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 350px;
+            margin-bottom: 20px;
+        }
+
+        svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .chart-legend {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(102, 126, 234, 0.2);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9em;
+            color: var(--text-secondary);
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #2196F3 0%, #4CAF50 100%);
+            padding: 18px;
+            border-radius: 12px;
+            color: white;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3);
+        }
+
+        .stat-label {
+            font-size: 0.85em;
+            opacity: 0.9;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+
+        .stat-value {
+            font-size: 1.8em;
+            font-weight: 700;
+        }
+
+        .tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.85);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.85em;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+            z-index: 10;
+            white-space: nowrap;
+        }
+
+        .tooltip.visible {
+            opacity: 1;
+        }
+
+        @media (max-width: 1024px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header {
+                flex-direction: column;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 80px 15px 30px;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .header h1 {
+                font-size: 1.6em;
+            }
+
+            .card {
+                padding: 20px;
+                border-radius: 20px;
+            }
+
+            .chart-container {
+                height: 280px;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .theme-toggle {
+                top: 15px;
+                right: 15px;
+                padding: 8px 15px;
+            }
+
+            .theme-toggle span:not(#themeIcon) {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 상단 네비게이션 메뉴 -->
+    <nav class="nav-menu">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">📊 김비서</a>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">메인</a>
+                <a href="dashboard.html" class="nav-link">대시보드</a>
+                <a href="meeting-result.html" class="nav-link">회의록</a>
+                <a href="chart.html" class="nav-link active">매출 현황</a>
+                <a href="diagram.html" class="nav-link">업무 프로세스</a>
+                <a href="report.html" class="nav-link">사이트 분석</a>
+            </div>
+        </div>
+    </nav>
+
+    <button class="theme-toggle" id="themeToggle" title="테마 전환">
+        <span id="themeIcon">🌙</span>
+        <span id="themeLabel"></span>
+    </button>
+
+    <div class="container">
+        <div class="header">
+            <h1>📊 매출 분석 차트</h1>
+            <div class="header-links">
+                <a href="index.html" class="back-link">← 메인</a>
+                <a href="dashboard.html" class="back-link">← 대시보드</a>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <!-- 월별 매출 추이 -->
+            <div class="card">
+                <h2>📈 월별 매출 추이</h2>
+                <div class="chart-container">
+                    <canvas id="lineChart"></canvas>
+                </div>
+                <div class="chart-legend" id="lineLegend"></div>
+            </div>
+
+            <!-- 제품별 매출 비교 -->
+            <div class="card">
+                <h2>📊 제품별 매출 비교</h2>
+                <div class="chart-container">
+                    <canvas id="barChart"></canvas>
+                </div>
+                <div class="chart-legend" id="barLegend"></div>
+            </div>
+        </div>
+
+        <!-- 통계 -->
+        <div class="card">
+            <h2>💡 매출 통계</h2>
+            <div class="stats-grid" id="statsGrid"></div>
+        </div>
+    </div>
+
+    <script>
+        // 데이터 준비
+        const salesData = [
+            { date: "2026-01-05", product: "무선 이어폰", amount: 4005000 },
+            { date: "2026-01-05", product: "보조배터리", amount: 1120000 },
+            { date: "2026-01-05", product: "텀블러", amount: 1950000 },
+            { date: "2026-01-08", product: "무선 이어폰", amount: 4628000 },
+            { date: "2026-01-08", product: "블루투스 스피커", amount: 2160000 },
+            { date: "2026-01-08", product: "텀블러", amount: 1625000 },
+            { date: "2026-01-12", product: "보조배터리", amount: 1435000 },
+            { date: "2026-01-12", product: "무선 충전기", amount: 1305000 },
+            { date: "2026-01-12", product: "에코백", amount: 1395000 },
+            { date: "2026-01-15", product: "무선 이어폰", amount: 3382000 },
+            { date: "2026-01-15", product: "블루투스 스피커", amount: 2640000 },
+            { date: "2026-01-15", product: "텀블러", amount: 2100000 },
+            { date: "2026-01-19", product: "보조배터리", amount: 1925000 },
+            { date: "2026-01-19", product: "에코백", amount: 1650000 },
+            { date: "2026-01-19", product: "무선 충전기", amount: 1485000 },
+            { date: "2026-01-22", product: "무선 이어폰", amount: 5429000 },
+            { date: "2026-01-22", product: "텀블러", amount: 1800000 },
+            { date: "2026-01-22", product: "블루투스 스피커", amount: 1800000 },
+            { date: "2026-01-26", product: "보조배터리", amount: 1680000 },
+            { date: "2026-01-26", product: "에코백", amount: 1320000 },
+            { date: "2026-01-26", product: "무선 충전기", amount: 1665000 },
+            { date: "2026-02-01", product: "무선 이어폰", amount: 6230000 },
+            { date: "2026-02-01", product: "텀블러", amount: 2375000 },
+            { date: "2026-02-01", product: "보조배터리", amount: 1505000 },
+            { date: "2026-02-05", product: "블루투스 스피커", amount: 3000000 },
+            { date: "2026-02-05", product: "에코백", amount: 1800000 },
+            { date: "2026-02-05", product: "무선 충전기", amount: 1395000 },
+            { date: "2026-02-10", product: "무선 이어폰", amount: 5162000 },
+            { date: "2026-02-10", product: "텀블러", amount: 1675000 },
+            { date: "2026-02-10", product: "보조배터리", amount: 1365000 }
+        ];
+
+        const colors = ['#2196F3', '#4CAF50', '#FF9800', '#9C27B0', '#00BCD4', '#F44336'];
+        const productNames = ["무선 이어폰", "보조배터리", "텀블러", "블루투스 스피커", "무선 충전기", "에코백"];
+
+        // 월별 매출 집계
+        const monthlyData = {};
+        salesData.forEach(item => {
+            const month = item.date.substring(0, 7);
+            monthlyData[month] = (monthlyData[month] || 0) + item.amount;
+        });
+
+        // 제품별 매출 집계
+        const productData = {};
+        productNames.forEach(product => {
+            productData[product] = salesData
+                .filter(item => item.product === product)
+                .reduce((sum, item) => sum + item.amount, 0);
+        });
+
+        // 유틸리티 함수
+        function formatCurrency(num) {
+            return Math.round(num / 1000000) + 'M' || '0';
+        }
+
+        function formatCurrencyDetail(num) {
+            if (num >= 1000000) {
+                return (num / 1000000).toFixed(1) + 'M';
+            }
+            return (num / 1000).toFixed(0) + 'K';
+        }
+
+        function addCommas(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+
+        // 선 그래프 그리기 (월별 매출)
+        function drawLineChart() {
+            const canvas = document.getElementById('lineChart');
+            const ctx = canvas.getContext('2d');
+            const months = Object.keys(monthlyData).sort();
+            const values = months.map(m => monthlyData[m]);
+
+            const width = canvas.parentElement.offsetWidth;
+            const height = canvas.parentElement.offsetHeight;
+            canvas.width = width;
+            canvas.height = height;
+
+            const padding = 50;
+            const graphWidth = width - padding * 2;
+            const graphHeight = height - padding * 2;
+
+            const maxValue = Math.max(...values) * 1.1;
+            const minValue = 0;
+
+            // 배경 그리드
+            ctx.strokeStyle = 'rgba(200, 200, 200, 0.2)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i <= 5; i++) {
+                const y = padding + (graphHeight / 5) * i;
+                ctx.beginPath();
+                ctx.moveTo(padding, y);
+                ctx.lineTo(width - padding, y);
+                ctx.stroke();
+            }
+
+            // 축 그리기
+            ctx.strokeStyle = 'rgba(0, 0, 0, 0.3)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(padding, height - padding);
+            ctx.lineTo(width - padding, height - padding);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(padding, padding);
+            ctx.lineTo(padding, height - padding);
+            ctx.stroke();
+
+            // 선 그리기
+            ctx.strokeStyle = '#2196F3';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+
+            values.forEach((value, index) => {
+                const x = padding + (graphWidth / (values.length - 1 || 1)) * index;
+                const y = height - padding - ((value - minValue) / (maxValue - minValue)) * graphHeight;
+
+                if (index === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            });
+            ctx.stroke();
+
+            // 포인트 그리기
+            ctx.fillStyle = '#2196F3';
+            values.forEach((value, index) => {
+                const x = padding + (graphWidth / (values.length - 1 || 1)) * index;
+                const y = height - padding - ((value - minValue) / (maxValue - minValue)) * graphHeight;
+
+                ctx.beginPath();
+                ctx.arc(x, y, 5, 0, Math.PI * 2);
+                ctx.fill();
+
+                // 레이블
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+                ctx.font = '12px Segoe UI';
+                ctx.textAlign = 'center';
+                ctx.fillText(months[index].substring(5), x, height - padding + 25);
+
+                ctx.fillStyle = '#2196F3';
+                ctx.fillText(formatCurrency(value), x, padding - 10);
+            });
+
+            // 범례
+            document.getElementById('lineLegend').innerHTML = `
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #2196F3;"></div>
+                    월별 총 매출액
+                </div>
+            `;
+        }
+
+        // 막대 그래프 그리기 (제품별 매출)
+        function drawBarChart() {
+            const canvas = document.getElementById('barChart');
+            const ctx = canvas.getContext('2d');
+
+            const width = canvas.parentElement.offsetWidth;
+            const height = canvas.parentElement.offsetHeight;
+            canvas.width = width;
+            canvas.height = height;
+
+            const padding = 50;
+            const graphWidth = width - padding * 2;
+            const graphHeight = height - padding * 2;
+
+            const products = Object.keys(productData);
+            const values = products.map(p => productData[p]);
+            const maxValue = Math.max(...values) * 1.1;
+
+            // 축 그리기
+            ctx.strokeStyle = 'rgba(0, 0, 0, 0.3)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(padding, height - padding);
+            ctx.lineTo(width - padding, height - padding);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(padding, padding);
+            ctx.lineTo(padding, height - padding);
+            ctx.stroke();
+
+            // 막대 그리기
+            const barWidth = graphWidth / products.length;
+            const barPadding = barWidth * 0.2;
+
+            products.forEach((product, index) => {
+                const value = productData[product];
+                const x = padding + barWidth * index;
+                const barHeight = (value / maxValue) * graphHeight;
+                const y = height - padding - barHeight;
+
+                // 막대
+                ctx.fillStyle = colors[index % colors.length];
+                ctx.fillRect(x + barPadding, y, barWidth - barPadding * 2, barHeight);
+
+                // 값 표시
+                ctx.fillStyle = colors[index % colors.length];
+                ctx.font = 'bold 12px Segoe UI';
+                ctx.textAlign = 'center';
+                ctx.fillText(formatCurrency(value), x + barWidth / 2, y - 8);
+
+                // 제품명
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+                ctx.font = '11px Segoe UI';
+                ctx.textAlign = 'center';
+                const maxChars = 8;
+                const label = product.length > maxChars ? product.substring(0, maxChars - 1) + '...' : product;
+                ctx.fillText(label, x + barWidth / 2, height - padding + 20);
+            });
+
+            // 범례
+            document.getElementById('barLegend').innerHTML = products
+                .map((p, i) => `
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: ${colors[i]};"></div>
+                        ${p}
+                    </div>
+                `)
+                .join('');
+        }
+
+        // 통계 그리기
+        function drawStats() {
+            const totalSales = Object.values(productData).reduce((a, b) => a + b, 0);
+            const avgSalesByProduct = totalSales / productNames.length;
+            const topProduct = Object.keys(productData).reduce((a, b) =>
+                productData[a] > productData[b] ? a : b
+            );
+
+            document.getElementById('statsGrid').innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-label">총 매출액</div>
+                    <div class="stat-value">${formatCurrencyDetail(totalSales)}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">제품별 평균 매출</div>
+                    <div class="stat-value">${formatCurrencyDetail(avgSalesByProduct)}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">최고 매출 제품</div>
+                    <div class="stat-value" style="font-size: 1.1em;">${topProduct}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">총 판매 제품 수</div>
+                    <div class="stat-value">${productNames.length}</div>
+                </div>
+            `;
+        }
+
+        // 테마 시스템
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            setTheme(savedTheme);
+        }
+
+        function setTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('theme', theme);
+
+            const themeIcon = document.getElementById('themeIcon');
+            const themeLabel = document.getElementById('themeLabel');
+
+            if (theme === 'dark') {
+                themeIcon.textContent = '☀️';
+                themeLabel.textContent = 'Light';
+            } else {
+                themeIcon.textContent = '🌙';
+                themeLabel.textContent = 'Dark';
+            }
+        }
+
+        document.getElementById('themeToggle').addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            setTheme(newTheme);
+        });
+
+        // 초기화
+        initTheme();
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                drawLineChart();
+                drawBarChart();
+                drawStats();
+            }, 100);
+        });
+
+        window.addEventListener('resize', () => {
+            drawLineChart();
+            drawBarChart();
+        });
+    </script>
+</body>
+</html>

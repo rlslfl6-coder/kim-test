@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 200" width="800" height="200">
+  <!-- 배경 -->
+  <rect width="800" height="200" fill="transparent"/>
+
+  <!-- 단계 1: 기획 -->
+  <g>
+    <!-- 배경 박스 -->
+    <rect x="20" y="50" width="120" height="100" rx="15" fill="#FFB3BA" opacity="0.9"/>
+    <!-- 텍스트 -->
+    <text x="80" y="95" font-family="Segoe UI, sans-serif" font-size="16" font-weight="600" text-anchor="middle" fill="#333">
+      기획
+    </text>
+    <text x="80" y="115" font-family="Segoe UI, sans-serif" font-size="12" text-anchor="middle" fill="#666">
+      Plan
+    </text>
+  </g>
+
+  <!-- 화살표 1 -->
+  <g>
+    <line x1="145" y1="100" x2="165" y2="100" stroke="#999" stroke-width="2"/>
+    <polygon points="165,100 158,95 158,105" fill="#999"/>
+  </g>
+
+  <!-- 단계 2: 제작 -->
+  <g>
+    <rect x="170" y="50" width="120" height="100" rx="15" fill="#FFDFBA" opacity="0.9"/>
+    <text x="230" y="95" font-family="Segoe UI, sans-serif" font-size="16" font-weight="600" text-anchor="middle" fill="#333">
+      제작
+    </text>
+    <text x="230" y="115" font-family="Segoe UI, sans-serif" font-size="12" text-anchor="middle" fill="#666">
+      Create
+    </text>
+  </g>
+
+  <!-- 화살표 2 -->
+  <g>
+    <line x1="295" y1="100" x2="315" y2="100" stroke="#999" stroke-width="2"/>
+    <polygon points="315,100 308,95 308,105" fill="#999"/>
+  </g>
+
+  <!-- 단계 3: 검토 -->
+  <g>
+    <rect x="320" y="50" width="120" height="100" rx="15" fill="#BAFFC9" opacity="0.9"/>
+    <text x="380" y="95" font-family="Segoe UI, sans-serif" font-size="16" font-weight="600" text-anchor="middle" fill="#333">
+      검토
+    </text>
+    <text x="380" y="115" font-family="Segoe UI, sans-serif" font-size="12" text-anchor="middle" fill="#666">
+      Review
+    </text>
+  </g>
+
+  <!-- 화살표 3 -->
+  <g>
+    <line x1="445" y1="100" x2="465" y2="100" stroke="#999" stroke-width="2"/>
+    <polygon points="465,100 458,95 458,105" fill="#999"/>
+  </g>
+
+  <!-- 단계 4: 배포 -->
+  <g>
+    <rect x="470" y="50" width="120" height="100" rx="15" fill="#BAE1FF" opacity="0.9"/>
+    <text x="530" y="95" font-family="Segoe UI, sans-serif" font-size="16" font-weight="600" text-anchor="middle" fill="#333">
+      배포
+    </text>
+    <text x="530" y="115" font-family="Segoe UI, sans-serif" font-size="12" text-anchor="middle" fill="#666">
+      Deploy
+    </text>
+  </g>
+
+  <!-- 화살표 4 -->
+  <g>
+    <line x1="595" y1="100" x2="615" y2="100" stroke="#999" stroke-width="2"/>
+    <polygon points="615,100 608,95 608,105" fill="#999"/>
+  </g>
+
+  <!-- 단계 5: 분석 -->
+  <g>
+    <rect x="620" y="50" width="120" height="100" rx="15" fill="#E0BBE4" opacity="0.9"/>
+    <text x="680" y="95" font-family="Segoe UI, sans-serif" font-size="16" font-weight="600" text-anchor="middle" fill="#333">
+      분석
+    </text>
+    <text x="680" y="115" font-family="Segoe UI, sans-serif" font-size="12" text-anchor="middle" fill="#666">
+      Analyze
+    </text>
+  </g>
+
+  <!-- 제목 (선택사항) -->
+  <text x="400" y="25" font-family="Segoe UI, sans-serif" font-size="14" font-weight="600" text-anchor="middle" fill="#666">
+    마케팅 캠페인 프로세스
+  </text>
+</svg>

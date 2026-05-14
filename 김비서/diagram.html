@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>업무 프로세스 - 마케팅 캠페인 워크플로우</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --bg-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --card-border: rgba(255, 255, 255, 0.3);
+            --text-primary: #1a1a2e;
+            --text-secondary: #555;
+            --accent: #667eea;
+            --shadow: 0 8px 32px rgba(31, 38, 135, 0.2);
+            --shadow-hover: 0 15px 50px rgba(31, 38, 135, 0.3);
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: linear-gradient(135deg, #0f0f23 0%, #1a1a3e 100%);
+            --bg-secondary: linear-gradient(135deg, #2d1b69 0%, #1f0f4c 100%);
+            --card-bg: rgba(30, 20, 60, 0.4);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --text-primary: #e0e0e0;
+            --text-secondary: #b0b0b0;
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            --shadow-hover: 0 15px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-primary);
+            padding: 110px 20px 40px 20px;
+            color: var(--text-primary);
+            position: relative;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg-secondary);
+            opacity: 0.5;
+            animation: gradientShift 15s ease infinite;
+            z-index: -2;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 0.7; }
+        }
+
+        .nav-menu {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--card-border);
+            backdrop-filter: blur(10px);
+            z-index: 200;
+            box-shadow: var(--shadow);
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            height: 70px;
+            gap: 10px;
+        }
+
+        .nav-logo {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: var(--accent);
+            margin-right: 30px;
+            white-space: nowrap;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 5px;
+            flex: 1;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .nav-link {
+            padding: 10px 20px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95em;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 1px solid transparent;
+            white-space: nowrap;
+        }
+
+        .nav-link:hover {
+            background: rgba(102, 126, 234, 0.1);
+            color: var(--accent);
+            border-color: rgba(102, 126, 234, 0.2);
+        }
+
+        .nav-link.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: var(--accent);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(10px);
+            border-radius: 50px;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 1.2em;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .theme-toggle:hover {
+            box-shadow: var(--shadow-hover);
+            transform: translateY(-2px);
+        }
+
+        .theme-toggle span {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.9em;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            animation: slideUp 0.8s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(10px);
+            border-radius: 25px;
+            padding: 40px;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+            border-color: rgba(102, 126, 234, 0.3);
+        }
+
+        .card h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .card p {
+            color: var(--text-secondary);
+            font-size: 1.05em;
+            margin-bottom: 30px;
+        }
+
+        .diagram-wrapper {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            overflow-x: auto;
+            margin-bottom: 20px;
+        }
+
+        [data-theme="dark"] .diagram-wrapper {
+            background: rgba(30, 20, 60, 0.6);
+        }
+
+        .diagram-wrapper svg {
+            display: block;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 95px 15px 30px;
+            }
+
+            .nav-container {
+                padding: 0 15px;
+                height: 60px;
+                gap: 0;
+            }
+
+            .nav-logo {
+                margin-right: 15px;
+                font-size: 1.1em;
+            }
+
+            .nav-links {
+                gap: 2px;
+            }
+
+            .nav-link {
+                padding: 8px 12px;
+                font-size: 0.85em;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            .card h1 {
+                font-size: 1.5em;
+            }
+
+            .theme-toggle {
+                top: 15px;
+                right: 15px;
+                padding: 8px 15px;
+            }
+
+            .theme-toggle span:not(#themeIcon) {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 상단 네비게이션 메뉴 -->
+    <nav class="nav-menu">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">📊 김비서</a>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">메인</a>
+                <a href="dashboard.html" class="nav-link">대시보드</a>
+                <a href="meeting-result.html" class="nav-link">회의록</a>
+                <a href="chart.html" class="nav-link">매출 현황</a>
+                <a href="diagram.html" class="nav-link active">업무 프로세스</a>
+                <a href="report.html" class="nav-link">사이트 분석</a>
+            </div>
+        </div>
+    </nav>
+
+    <button class="theme-toggle" id="themeToggle" title="테마 전환">
+        <span id="themeIcon">🌙</span>
+        <span id="themeLabel"></span>
+    </button>
+
+    <div class="container">
+        <div class="card">
+            <h1>📊 업무 프로세스</h1>
+            <p>마케팅 캠페인 워크플로우 — 기획부터 분석까지의 5단계</p>
+
+            <div class="diagram-wrapper">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 200" width="800" height="200">
+                    <!-- 단계 1: 기획 -->
+                    <g>
+                        <rect x="20" y="50" width="120" height="100" rx="15" fill="#FFB3BA" opacity="0.9"/>
+                        <text x="80" y="95" font-family="Segoe UI, sans-serif" font-size="16" font-weight="600" text-anchor="middle" fill="#333">기획</text>
+                        <text x="80" y="115" font-family="Segoe UI, sans-serif" font-size="12" text-anchor="middle" fill="#666">Plan</text>
+                    </g>
+
+                    <!-- 화살표 1 -->
+                    <g>
+                        <line x1="145" y1="100" x2="165" y2="100" stroke="#999" stroke-width="2"/>
+                        <polygon points="165,100 158,95 158,105" fill="#999"/>
+                    </g>
+
+                    <!-- 단계 2: 제작 -->
+                    <g>
+                        <rect x="170" y="50" width="120" height="100" rx="15" fill="#FFDFBA" opacity="0.9"/>
+                        <text x="230" y="95" font-family="Segoe UI, sans-serif" font-size="16" font-weight="600" text-anchor="middle" fill="#333">제작</text>
+                        <text x="230" y="115" font-family="Segoe UI, sans-serif" font-size="12" text-anchor="middle" fill="#666">Create</text>
+                    </g>
+
+                    <!-- 화살표 2 -->
+                    <g>
+                        <line x1="295" y1="100" x2="315" y2="100" stroke="#999" stroke-width="2"/>
+                        <polygon points="315,100 308,95 308,105" fill="#999"/>
+                    </g>
+
+                    <!-- 단계 3: 검토 -->
+                    <g>
+                        <rect x="320" y="50" width="120" height="100" rx="15" fill="#BAFFC9" opacity="0.9"/>
+                        <text x="380" y="95" font-family="Segoe UI, sans-serif" font-size="16" font-weight="600" text-anchor="middle" fill="#333">검토</text>
+                        <text x="380" y="115" font-family="Segoe UI, sans-serif" font-size="12" text-anchor="middle" fill="#666">Review</text>
+                    </g>
+
+                    <!-- 화살표 3 -->
+                    <g>
+                        <line x1="445" y1="100" x2="465" y2="100" stroke="#999" stroke-width="2"/>
+                        <polygon points="465,100 458,95 458,105" fill="#999"/>
+                    </g>
+
+                    <!-- 단계 4: 배포 -->
+                    <g>
+                        <rect x="470" y="50" width="120" height="100" rx="15" fill="#BAE1FF" opacity="0.9"/>
+                        <text x="530" y="95" font-family="Segoe UI, sans-serif" font-size="16" font-weight="600" text-anchor="middle" fill="#333">배포</text>
+                        <text x="530" y="115" font-family="Segoe UI, sans-serif" font-size="12" text-anchor="middle" fill="#666">Deploy</text>
+                    </g>
+
+                    <!-- 화살표 4 -->
+                    <g>
+                        <line x1="595" y1="100" x2="615" y2="100" stroke="#999" stroke-width="2"/>
+                        <polygon points="615,100 608,95 608,105" fill="#999"/>
+                    </g>
+
+                    <!-- 단계 5: 분석 -->
+                    <g>
+                        <rect x="620" y="50" width="120" height="100" rx="15" fill="#E0BBE4" opacity="0.9"/>
+                        <text x="680" y="95" font-family="Segoe UI, sans-serif" font-size="16" font-weight="600" text-anchor="middle" fill="#333">분석</text>
+                        <text x="680" y="115" font-family="Segoe UI, sans-serif" font-size="12" text-anchor="middle" fill="#666">Analyze</text>
+                    </g>
+                </svg>
+            </div>
+
+            <p style="margin-top: 20px; color: var(--text-secondary); font-size: 0.95em;">
+                각 단계에서 데이터와 피드백을 수집하여 다음 캠페인에 반영합니다.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // 테마 시스템
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        const themeLabel = document.getElementById('themeLabel');
+        const html = document.documentElement;
+
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            setTheme(savedTheme);
+        }
+
+        function setTheme(theme) {
+            html.setAttribute('data-theme', theme);
+            localStorage.setItem('theme', theme);
+
+            if (theme === 'dark') {
+                themeIcon.textContent = '☀️';
+                themeLabel.textContent = 'Light';
+            } else {
+                themeIcon.textContent = '🌙';
+                themeLabel.textContent = 'Dark';
+            }
+        }
+
+        function toggleTheme() {
+            const currentTheme = html.getAttribute('data-theme') || 'light';
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            setTheme(newTheme);
+        }
+
+        themeToggle.addEventListener('click', toggleTheme);
+
+        // 네비게이션 현재 페이지 표시
+        function setActiveNav() {
+            const currentPage = window.location.pathname.split('/').pop() || 'diagram.html';
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                const href = link.getAttribute('href');
+                if (href === currentPage) {
+                    link.classList.add('active');
+                }
+            });
+        }
+
+        setActiveNav();
+        initTheme();
+    </script>
+</body>
+</html>

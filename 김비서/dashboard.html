@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>김비서 - 업무 대시보드</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --bg-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --card-border: rgba(255, 255, 255, 0.3);
+            --text-primary: #1a1a2e;
+            --text-secondary: #555;
+            --text-tertiary: #999;
+            --shadow: 0 8px 32px rgba(31, 38, 135, 0.2);
+            --shadow-hover: 0 15px 50px rgba(31, 38, 135, 0.3);
+            --accent: #667eea;
+            --button-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --button-hover: 0 15px 40px rgba(102, 126, 234, 0.6);
+            --todo-high: rgba(231, 76, 60, 0.1);
+            --todo-high-border: rgba(231, 76, 60, 0.3);
+            --todo-medium: rgba(243, 156, 18, 0.1);
+            --todo-medium-border: rgba(243, 156, 18, 0.3);
+            --todo-low: rgba(39, 174, 96, 0.1);
+            --todo-low-border: rgba(39, 174, 96, 0.3);
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: linear-gradient(135deg, #0f0f23 0%, #1a1a3e 100%);
+            --bg-secondary: linear-gradient(135deg, #2d1b69 0%, #1f0f4c 100%);
+            --card-bg: rgba(30, 20, 60, 0.4);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --text-primary: #e0e0e0;
+            --text-secondary: #b0b0b0;
+            --text-tertiary: #808080;
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            --shadow-hover: 0 15px 50px rgba(0, 0, 0, 0.5);
+            --accent: #667eea;
+            --button-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --button-hover: 0 15px 40px rgba(102, 126, 234, 0.8);
+            --todo-high: rgba(231, 76, 60, 0.12);
+            --todo-high-border: rgba(231, 76, 60, 0.25);
+            --todo-medium: rgba(243, 156, 18, 0.12);
+            --todo-medium-border: rgba(243, 156, 18, 0.25);
+            --todo-low: rgba(39, 174, 96, 0.12);
+            --todo-low-border: rgba(39, 174, 96, 0.25);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-primary);
+            padding: 110px 20px 40px 20px;
+            color: var(--text-primary);
+            position: relative;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        .nav-menu {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--card-border);
+            backdrop-filter: blur(10px);
+            padding: 0;
+            box-shadow: var(--shadow);
+            z-index: 200;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            height: 70px;
+            gap: 10px;
+        }
+
+        .nav-logo {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: var(--accent);
+            margin-right: 30px;
+            white-space: nowrap;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 5px;
+            flex: 1;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .nav-link {
+            padding: 10px 20px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95em;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 1px solid transparent;
+            white-space: nowrap;
+        }
+
+        .nav-link:hover {
+            background: rgba(102, 126, 234, 0.1);
+            color: var(--accent);
+            border-color: rgba(102, 126, 234, 0.2);
+        }
+
+        .nav-link.active {
+            background: var(--button-bg);
+            color: white;
+            border-color: var(--accent);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 95px 15px 30px;
+            }
+
+            .nav-container {
+                padding: 0 15px;
+                height: 60px;
+                gap: 0;
+            }
+
+            .nav-logo {
+                margin-right: 15px;
+                font-size: 1.1em;
+            }
+
+            .nav-links {
+                gap: 2px;
+            }
+
+            .nav-link {
+                padding: 8px 12px;
+                font-size: 0.85em;
+            }
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg-secondary);
+            opacity: 0.5;
+            animation: gradientShift 15s ease infinite;
+            z-index: -2;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 20% 50%, rgba(102, 126, 234, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(245, 87, 108, 0.1) 0%, transparent 50%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 0.7; }
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(10px);
+            border-radius: 50px;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 1.2em;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .theme-toggle:hover {
+            background: var(--card-bg);
+            box-shadow: var(--shadow-hover);
+            transform: translateY(-2px);
+        }
+
+        .theme-toggle span {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.9em;
+        }
+
+        .header {
+            max-width: 1400px;
+            margin: 0 auto 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: slideDown 0.8s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            color: var(--text-primary);
+            background: var(--button-bg);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+        }
+
+        .back-link {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 12px 25px;
+            border-radius: 20px;
+            text-decoration: none;
+            color: var(--accent);
+            font-weight: 600;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow);
+        }
+
+        .back-link:hover {
+            background: var(--card-bg);
+            border-color: var(--accent);
+            box-shadow: var(--shadow-hover);
+            transform: translateY(-2px);
+        }
+
+        .dashboard {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            animation: fadeIn 0.8s ease 0.2s both;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(10px);
+            border-radius: 25px;
+            padding: 30px;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+            border-color: rgba(102, 126, 234, 0.3);
+        }
+
+        .card.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .card h2 {
+            font-size: 1.4em;
+            margin-bottom: 25px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 600;
+        }
+
+        /* 섹션 1: 할 일 목록 */
+        .todo-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .todo-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 16px;
+            background: var(--todo-medium);
+            border-radius: 12px;
+            border-left: 4px solid;
+            border: 1px solid var(--todo-medium-border);
+            border-left: 4px solid;
+            transition: all 0.2s;
+            backdrop-filter: blur(5px);
+        }
+
+        .todo-item.high {
+            border-left-color: #e74c3c;
+            background: var(--todo-high);
+            border-color: var(--todo-high-border);
+        }
+
+        .todo-item.medium {
+            border-left-color: #f39c12;
+            background: var(--todo-medium);
+            border-color: var(--todo-medium-border);
+        }
+
+        .todo-item.low {
+            border-left-color: #27ae60;
+            background: var(--todo-low);
+            border-color: var(--todo-low-border);
+        }
+
+        .todo-item.completed {
+            opacity: 0.6;
+        }
+
+        .todo-item:hover {
+            transform: translateX(3px);
+            border-color: rgba(102, 126, 234, 0.3);
+        }
+
+        .todo-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-right: 15px;
+            margin-top: 2px;
+            cursor: pointer;
+            accent-color: var(--accent);
+        }
+
+        .todo-content {
+            flex: 1;
+        }
+
+        .todo-title {
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: var(--text-primary);
+        }
+
+        .todo-meta {
+            font-size: 0.85em;
+            color: var(--text-tertiary);
+        }
+
+        /* 섹션 2: 주간 일정 */
+        .schedule-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .schedule-table th {
+            background: rgba(102, 126, 234, 0.1);
+            padding: 14px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid var(--card-border);
+            color: var(--accent);
+            border-radius: 8px 8px 0 0;
+        }
+
+        .schedule-table td {
+            padding: 14px;
+            border-bottom: 1px solid var(--card-border);
+            color: var(--text-secondary);
+        }
+
+        .day-name {
+            font-weight: 600;
+            color: var(--accent);
+            min-width: 70px;
+        }
+
+        .events {
+            font-size: 0.9em;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .event-count {
+            display: inline-block;
+            background: var(--button-bg);
+            color: white;
+            border-radius: 20px;
+            padding: 3px 10px;
+            font-size: 0.75em;
+            margin-left: 8px;
+            font-weight: 600;
+        }
+
+        /* 섹션 3: 프로젝트 진행률 */
+        .project-list {
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+        }
+
+        .project-item {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 18px;
+            background: rgba(102, 126, 234, 0.05);
+            border: 1px solid rgba(102, 126, 234, 0.1);
+            border-radius: 12px;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+        }
+
+        .project-item:hover {
+            background: rgba(102, 126, 234, 0.08);
+            border-color: rgba(102, 126, 234, 0.2);
+        }
+
+        .project-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .project-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            flex: 1;
+        }
+
+        .project-status {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
+        .status-preparing {
+            background: rgba(25, 118, 210, 0.15);
+            color: #1976d2;
+        }
+
+        .status-progress {
+            background: rgba(245, 127, 23, 0.15);
+            color: #f57c00;
+        }
+
+        .status-finishing {
+            background: rgba(123, 31, 162, 0.15);
+            color: #7b1fa2;
+        }
+
+        .status-planning {
+            background: rgba(56, 142, 60, 0.15);
+            color: #388e3c;
+        }
+
+        .project-progress {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 8px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        [data-theme="dark"] .progress-bar {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--button-bg);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.5);
+        }
+
+        .progress-percent {
+            font-weight: 700;
+            color: var(--accent);
+            min-width: 35px;
+            text-align: right;
+        }
+
+        /* 섹션 4: 매출 요약 */
+        .sales-summary {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .sales-card {
+            background: var(--button-bg);
+            padding: 28px;
+            border-radius: 18px;
+            color: white;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .sales-card.secondary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            box-shadow: 0 8px 25px rgba(245, 87, 108, 0.3);
+        }
+
+        .sales-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(102, 126, 234, 0.5);
+        }
+
+        .sales-card.secondary:hover {
+            box-shadow: 0 12px 35px rgba(245, 87, 108, 0.5);
+        }
+
+        .sales-label {
+            font-size: 0.95em;
+            opacity: 0.95;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .sales-value {
+            font-size: 2.2em;
+            font-weight: 700;
+            margin-bottom: 5px;
+            letter-spacing: -0.5px;
+        }
+
+        .sales-unit {
+            font-size: 0.85em;
+            opacity: 0.85;
+        }
+
+        /* 반응형 디자인 */
+        @media (max-width: 1024px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+
+            .card.full-width {
+                grid-column: 1;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 80px 15px 30px;
+            }
+
+            .header {
+                margin-bottom: 30px;
+            }
+
+            .header h1 {
+                font-size: 1.6em;
+            }
+
+            .card {
+                padding: 20px;
+                border-radius: 20px;
+            }
+
+            .dashboard {
+                gap: 20px;
+            }
+
+            .sales-summary {
+                grid-template-columns: 1fr;
+            }
+
+            .schedule-table {
+                font-size: 0.9em;
+            }
+
+            .theme-toggle {
+                top: 15px;
+                right: 15px;
+                padding: 8px 15px;
+                font-size: 1em;
+            }
+
+            .theme-toggle span:not(#themeIcon) {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 상단 네비게이션 메뉴 -->
+    <nav class="nav-menu">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">📊 김비서</a>
+            <div class="nav-links">
+                <a href="dashboard.html" class="nav-link active">대시보드</a>
+                <a href="meeting-result.html" class="nav-link">회의록</a>
+                <a href="chart.html" class="nav-link">매출 현황</a>
+                <a href="diagram.svg" class="nav-link">업무 프로세스</a>
+                <a href="report.html" class="nav-link">사이트 분석</a>
+            </div>
+        </div>
+    </nav>
+
+    <button class="theme-toggle" id="themeToggle" title="테마 전환">
+        <span id="themeIcon">🌙</span>
+        <span id="themeLabel"></span>
+    </button>
+
+    <div class="header">
+        <h1>📊 업무 대시보드</h1>
+        <a href="index.html" class="back-link">← 메인</a>
+    </div>
+
+    <div class="dashboard">
+        <!-- 섹션 1: 할 일 목록 -->
+        <div class="card">
+            <h2>✅ 할 일 목록</h2>
+            <div class="todo-list" id="todoList"></div>
+        </div>
+
+        <!-- 섹션 2: 주간 일정 -->
+        <div class="card">
+            <h2>📅 이번 주 일정</h2>
+            <table class="schedule-table" id="scheduleTable"></table>
+        </div>
+
+        <!-- 섹션 3: 프로젝트 진행률 -->
+        <div class="card">
+            <h2>🚀 프로젝트 진행률</h2>
+            <div class="project-list" id="projectList"></div>
+        </div>
+
+        <!-- 섹션 4: 매출 요약 -->
+        <div class="card">
+            <h2>💰 매출 요약</h2>
+            <div class="sales-summary" id="salesSummary"></div>
+        </div>
+    </div>
+
+    <script>
+        // 데이터
+        const tasks = [
+            { title: "3월 프로모션 기획안 작성", priority: "high", status: "진행중", assignee: "김대리", deadline: "2026-03-12" },
+            { title: "인플루언서 미팅 일정 잡기", priority: "high", status: "대기", assignee: "이과장", deadline: "2026-03-14" },
+            { title: "영상 광고 3개 추가 제작", priority: "medium", status: "진행중", assignee: "박사원", deadline: "2026-03-14" },
+            { title: "경쟁사 C사 캠페인 분석", priority: "medium", status: "대기", assignee: "박사원", deadline: "2026-03-16" },
+            { title: "4월 신제품 티저 콘텐츠 기획", priority: "high", status: "대기", assignee: "정팀장", deadline: "2026-03-21" },
+            { title: "SNS 계정 주간 콘텐츠 업로드", priority: "medium", status: "완료", assignee: "김대리", deadline: "2026-03-10" },
+            { title: "블로그 포스트 2건 작성", priority: "low", status: "대기", assignee: "이과장", deadline: "2026-03-18" },
+            { title: "고객 설문조사 결과 분석", priority: "medium", status: "진행중", assignee: "정팀장", deadline: "2026-03-13" },
+            { title: "파트너사 계약서 검토", priority: "high", status: "대기", assignee: "정팀장", deadline: "2026-03-11" },
+            { title: "월간 마케팅 보고서 작성", priority: "high", status: "대기", assignee: "김대리", deadline: "2026-03-31" }
+        ];
+
+        const schedule = {
+            "월": ["10:00 마케팅팀 주간회의", "14:00 신제품 런칭 킥오프 미팅"],
+            "화": ["09:00 3월 프로모션 기획안 마감", "11:00 디자인팀 협업 미팅", "15:00 파트너사 계약서 검토", "19:00 클로드 코드 워크숍 참석"],
+            "수": ["10:00 인플루언서 미팅 (푸드스타일리 김OO)", "14:00 고객 설문 결과 공유 미팅", "16:00 콘텐츠 편집 회의"],
+            "목": ["09:30 영상 광고 촬영 (스튜디오)", "13:00 점심 미팅 — 광고 대행사", "15:00 SNS 콘텐츠 리뷰"],
+            "금": ["10:00 유튜브 채널 리뉴얼 최종 검토", "14:00 주간 성과 리뷰", "16:00 다음 주 콘텐츠 캘린더 확정"]
+        };
+
+        const projects = [
+            { name: "봄맞이 프로모션", progress: 65, status: "진행중", manager: "김대리" },
+            { name: "신제품 런칭 캠페인", progress: 20, status: "준비중", manager: "정팀장" },
+            { name: "인플루언서 협업", progress: 35, status: "진행중", manager: "이과장" },
+            { name: "유튜브 채널 리뉴얼", progress: 80, status: "마무리", manager: "박사원" },
+            { name: "고객 리텐션 프로그램", progress: 10, status: "기획중", manager: "정팀장" },
+            { name: "홈페이지 리뉴얼", progress: 45, status: "진행중", manager: "이과장" }
+        ];
+
+        const sales = [
+            { date: "2026-01-05", product: "무선 이어폰", category: "전자기기", quantity: 45, price: 89000, amount: 4005000, region: "서울" },
+            { date: "2026-01-05", product: "보조배터리", category: "전자기기", quantity: 32, price: 35000, amount: 1120000, region: "서울" },
+            { date: "2026-01-05", product: "텀블러", category: "생활용품", quantity: 78, price: 25000, amount: 1950000, region: "부산" },
+            { date: "2026-01-08", product: "무선 이어폰", category: "전자기기", quantity: 52, price: 89000, amount: 4628000, region: "서울" },
+            { date: "2026-01-08", product: "블루투스 스피커", category: "전자기기", quantity: 18, price: 120000, amount: 2160000, region: "대구" },
+            { date: "2026-01-08", product: "텀블러", category: "생활용품", quantity: 65, price: 25000, amount: 1625000, region: "서울" },
+            { date: "2026-01-12", product: "보조배터리", category: "전자기기", quantity: 41, price: 35000, amount: 1435000, region: "부산" },
+            { date: "2026-01-12", product: "무선 충전기", category: "전자기기", quantity: 29, price: 45000, amount: 1305000, region: "서울" },
+            { date: "2026-01-12", product: "에코백", category: "생활용품", quantity: 93, price: 15000, amount: 1395000, region: "대구" },
+            { date: "2026-01-15", product: "무선 이어폰", category: "전자기기", quantity: 38, price: 89000, amount: 3382000, region: "부산" },
+            { date: "2026-01-15", product: "블루투스 스피커", category: "전자기기", quantity: 22, price: 120000, amount: 2640000, region: "서울" },
+            { date: "2026-01-15", product: "텀블러", category: "생활용품", quantity: 84, price: 25000, amount: 2100000, region: "서울" },
+            { date: "2026-01-19", product: "보조배터리", category: "전자기기", quantity: 55, price: 35000, amount: 1925000, region: "대구" },
+            { date: "2026-01-19", product: "에코백", category: "생활용품", quantity: 110, price: 15000, amount: 1650000, region: "서울" },
+            { date: "2026-01-19", product: "무선 충전기", category: "전자기기", quantity: 33, price: 45000, amount: 1485000, region: "부산" },
+            { date: "2026-01-22", product: "무선 이어폰", category: "전자기기", quantity: 61, price: 89000, amount: 5429000, region: "서울" },
+            { date: "2026-01-22", product: "텀블러", category: "생활용품", quantity: 72, price: 25000, amount: 1800000, region: "대구" },
+            { date: "2026-01-22", product: "블루투스 스피커", category: "전자기기", quantity: 15, price: 120000, amount: 1800000, region: "부산" },
+            { date: "2026-01-26", product: "보조배터리", category: "전자기기", quantity: 48, price: 35000, amount: 1680000, region: "서울" },
+            { date: "2026-01-26", product: "에코백", category: "생활용품", quantity: 88, price: 15000, amount: 1320000, region: "서울" },
+            { date: "2026-01-26", product: "무선 충전기", category: "전자기기", quantity: 37, price: 45000, amount: 1665000, region: "대구" },
+            { date: "2026-02-01", product: "무선 이어폰", category: "전자기기", quantity: 70, price: 89000, amount: 6230000, region: "서울" },
+            { date: "2026-02-01", product: "텀블러", category: "생활용품", quantity: 95, price: 25000, amount: 2375000, region: "부산" },
+            { date: "2026-02-01", product: "보조배터리", category: "전자기기", quantity: 43, price: 35000, amount: 1505000, region: "서울" },
+            { date: "2026-02-05", product: "블루투스 스피커", category: "전자기기", quantity: 25, price: 120000, amount: 3000000, region: "서울" },
+            { date: "2026-02-05", product: "에코백", category: "생활용품", quantity: 120, price: 15000, amount: 1800000, region: "대구" },
+            { date: "2026-02-05", product: "무선 충전기", category: "전자기기", quantity: 31, price: 45000, amount: 1395000, region: "부산" },
+            { date: "2026-02-10", product: "무선 이어폰", category: "전자기기", quantity: 58, price: 89000, amount: 5162000, region: "대구" },
+            { date: "2026-02-10", product: "텀블러", category: "생활용품", quantity: 67, price: 25000, amount: 1675000, region: "서울" },
+            { date: "2026-02-10", product: "보조배터리", category: "전자기기", quantity: 39, price: 35000, amount: 1365000, region: "서울" }
+        ];
+
+        // 1. 할 일 목록 렌더링
+        function renderTodos() {
+            const todoList = document.getElementById("todoList");
+            todoList.innerHTML = tasks.map((task, idx) => `
+                <div class="todo-item ${task.priority} ${task.status === '완료' ? 'completed' : ''}">
+                    <input type="checkbox" ${task.status === '완료' ? 'checked' : ''}>
+                    <div class="todo-content">
+                        <div class="todo-title">${task.title}</div>
+                        <div class="todo-meta">${task.assignee} · ${task.status} · 마감: ${task.deadline}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 2. 주간 일정 렌더링
+        function renderSchedule() {
+            const table = document.getElementById("scheduleTable");
+            const header = '<tr><th style="width: 80px;">요일</th><th>일정</th></tr>';
+            const rows = Object.entries(schedule).map(([day, events]) => `
+                <tr>
+                    <td class="day-name">${day}</td>
+                    <td class="events">
+                        ${events.join('<br>')}
+                        <span class="event-count">${events.length}</span>
+                    </td>
+                </tr>
+            `).join('');
+            table.innerHTML = header + rows;
+        }
+
+        // 3. 프로젝트 진행률 렌더링
+        function renderProjects() {
+            const projectList = document.getElementById("projectList");
+            const statusClass = {
+                "준비중": "status-preparing",
+                "기획중": "status-planning",
+                "진행중": "status-progress",
+                "마무리": "status-finishing"
+            };
+
+            projectList.innerHTML = projects.map(proj => `
+                <div class="project-item">
+                    <div class="project-header">
+                        <div class="project-name">${proj.name}</div>
+                        <span class="project-status ${statusClass[proj.status]}">${proj.status}</span>
+                    </div>
+                    <div class="project-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${proj.progress}%"></div>
+                        </div>
+                        <div class="progress-percent">${proj.progress}%</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 4. 매출 요약 렌더링
+        function renderSales() {
+            const totalSales = sales.reduce((sum, s) => sum + s.amount, 0);
+            const avgSales = Math.round(totalSales / sales.length);
+            const totalQuantity = sales.reduce((sum, s) => sum + s.quantity, 0);
+            const topProduct = sales.reduce((prev, current) =>
+                (prev.amount > current.amount) ? prev : current
+            ).product;
+
+            const salesSummary = document.getElementById("salesSummary");
+            salesSummary.innerHTML = `
+                <div class="sales-card">
+                    <div class="sales-label">총 매출액</div>
+                    <div class="sales-value">${(totalSales / 1000000).toFixed(1)}M</div>
+                    <div class="sales-unit">원</div>
+                </div>
+                <div class="sales-card secondary">
+                    <div class="sales-label">평균 거래액</div>
+                    <div class="sales-value">${(avgSales / 1000).toFixed(0)}K</div>
+                    <div class="sales-unit">원</div>
+                </div>
+                <div class="sales-card">
+                    <div class="sales-label">총 판매량</div>
+                    <div class="sales-value">${totalQuantity}</div>
+                    <div class="sales-unit">개</div>
+                </div>
+                <div class="sales-card secondary">
+                    <div class="sales-label">최고 판매 상품</div>
+                    <div class="sales-value" style="font-size: 1.2em;">${topProduct}</div>
+                </div>
+            `;
+        }
+
+        // 테마 시스템
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        const themeLabel = document.getElementById('themeLabel');
+        const html = document.documentElement;
+
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            setTheme(savedTheme);
+        }
+
+        function setTheme(theme) {
+            html.setAttribute('data-theme', theme);
+            localStorage.setItem('theme', theme);
+
+            if (theme === 'dark') {
+                themeIcon.textContent = '☀️';
+                themeLabel.textContent = 'Light';
+            } else {
+                themeIcon.textContent = '🌙';
+                themeLabel.textContent = 'Dark';
+            }
+        }
+
+        function toggleTheme() {
+            const currentTheme = html.getAttribute('data-theme') || 'light';
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            setTheme(newTheme);
+        }
+
+        themeToggle.addEventListener('click', toggleTheme);
+
+        // 네비게이션 현재 페이지 표시
+        function setActiveNav() {
+            const currentPage = window.location.pathname.split('/').pop() || 'dashboard.html';
+            const navLinks = document.querySelectorAll('.nav-link');
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                const href = link.getAttribute('href');
+                if (href === currentPage || (currentPage === '' && href === 'dashboard.html')) {
+                    link.classList.add('active');
+                }
+            });
+        }
+
+        setActiveNav();
+
+        // 초기화
+        initTheme();
+        renderTodos();
+        renderSchedule();
+        renderProjects();
+        renderSales();
+
+        // 체크박스 이벤트
+        document.addEventListener('change', function(e) {
+            if (e.target.type === 'checkbox') {
+                e.target.closest('.todo-item').classList.toggle('completed');
+            }
+        });
+    </script>
+</body>
+</html>
